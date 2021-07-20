@@ -12,12 +12,10 @@ import {
   CSidebarNavItem,
 } from '@coreui/react'
 
-import CIcon from '@coreui/icons-react'
 import logo from './target.svg';
-import Search from '../views/carte/Search';
-import { CounterContextProvider } from "../views/carte/EssaisContext";
 // sidebar nav config
 import navigation from './_nav'
+import UserService from "../services/UserService";
 
 const TheSidebar = () => {
   const dispatch = useDispatch()
@@ -45,13 +43,14 @@ const TheSidebar = () => {
    
       </CSidebarBrand>
       {/* <CounterContextProvider>
-              <Search />                           
+              <Search />                            
          </CounterContextProvider> */}
       <CSidebarNav>
-
-
         <CCreateElement
-          items={navigation}
+          items={ UserService.hasRole(['SUPER_ADMIN'])? navigation.admin :
+          UserService.hasRole(['ADMIN_INSTITUTION'])? navigation.adminInstitution:
+          UserService.hasRole(['OPERATEUR'])? navigation.operateur:
+          []}
           components={{
             CSidebarNavDivider,
             CSidebarNavDropdown,

@@ -21,9 +21,10 @@ const Institution = (props) => {
               <li>Numéro fiscal: {props.institution.numeroFiscal}</li>
               <li>Description : {props.institution.description}</li>
               <li>Créée le : {props.institution.createdDate}</li>
-              <li>Créée par : <a href="#">{props.institution.createdBy}</a></li>
+              <li>Créée par : <a href="www.google.com">{props.institution.createdBy}</a></li>
               <li>Dernière modification : {props.institution.lastModifiedDate}</li>
-              <li>Modifiée par: <a href="#">{props.institution.lastModifiedBy}</a></li>
+              <li>Modifiée par: <a href="www.google.com">{props.institution.lastModifiedBy}</a></li>
+              <li><a href="http://localhost:8090/auth/admin/master/console/#/realms/GTM/">Gérer les utilisateurs</a></li>
             </ul>
           </CCardBody>
         </CCard>

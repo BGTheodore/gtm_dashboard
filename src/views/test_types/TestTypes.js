@@ -4,10 +4,22 @@ import {
   CDataTable,
   CButton,
   CCollapse,
+  CCol,
+  CBadge,
+  CToast,
+  CToastBody,
+  CToastHeader,
+  CToaster,
 } from '@coreui/react'
 import TestType from "./TestType";
+import ClipLoader from "react-spinners/ClipLoader";
+import UserService from "../../../src/services/UserService";
 
   const TestTypes = () => {
+      //__toaster
+  const [show, setShow] = useState(false);
+  const [showError, setShowError] = useState(false);
+  //__end toaster
   const [details, setDetails] = useState([])
 
   const toggleDetails = (index,id) => {
@@ -37,36 +49,64 @@ import TestType from "./TestType";
     }
   ]
 
+  const [errorMessage, setErrorMessage] = useState('Echec du processus. Veuillez essayer ultérieurement !');
+  const [loadingState, setLoadingState] = useState(false);
+
   const onDelete = (id) => {
     if (window.confirm("Confirmer la suppression")) {
+      setLoadingState(true);
       const requestOptions = {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${UserService.getToken()}`,
+        "Access-Control-Allow-Credentials" : true  },
       };
       fetch(`${process.env.REACT_APP_API_URL}/api/type_essais/`+id, requestOptions)
         .then(response => console.log(response))
+        .then(() => setShow(true))
+        .then(() => setLoadingState(false))
+        .catch((error) => {
+          console.log(error);
+          setShowError(true)
+          setLoadingState(false);
+        })
       const newList = data.filter((item) => item.id !== id);
       setData(newList);
-    } else {
-      
-    }
+    } 
+
+    setTimeout(() => {
+      setShow(false)
+      setShowError(false);
+    }, 3000)
   }
 
   const [data, setData] = useState([])
   useEffect(() => {
+    setLoadingStateHead(true);
+    
     fetch(`${process.env.REACT_APP_API_URL}/api/type_essais/`)
       .then((response) => response.json())
-      .then((json) => setData(json)); 
+      .then((json) => setData(json))
+      .then(() => setLoadingStateHead(false))
+      .catch((error) => {
+        console.log(error);
+        setLoadingStateHead(false);
+      }); 
+     
     
   }, []);
+  
+  const [loadingStateHead, setLoadingStateHead] = useState(false);
 
   return (
     <div>
           <a href="/#/test_types/create" >   
             <CButton variant="outline" color="success">Ajouter</CButton>
+            <ClipLoader loading={loadingStateHead} size={25} />
           </a>
             
           <CDataTable
-      items={data}
+      items={data ? data : null}
       fields={fields}
       columnFilter
       tableFilter
@@ -105,7 +145,7 @@ import TestType from "./TestType";
                     </CButton>
                   </a>
                   <CButton size="sm" color="danger" className="ml-1" onClick= {() =>{onDelete(item.id)}}>
-                    Suprimmer
+                    Suprimmer   <ClipLoader loading={loadingState} size={15} />
                   </CButton>
                 </CCardBody>
               </CCollapse>
@@ -113,6 +153,46 @@ import TestType from "./TestType";
           }
       }}
     />
+
+     {/* SHOW SUCCES */}
+     <CCol sm="12" lg="6">
+    <CToaster
+      position={'top-right'}
+      > 
+          <CToast
+            show={show}
+            autohide={true && 4000}
+            fade={true}
+          >
+            <CToastHeader closeButton={true}>
+            <CBadge className="mr-1" color="success">SUCCÈS</CBadge>              
+            </CToastHeader>
+            <CToastBody  color="success">
+              Opération réussie !
+            </CToastBody>
+          </CToast>
+      </CToaster>
+    </CCol>
+
+    {/* SHOW ERROR */}
+    <CCol sm="12" lg="6">
+          <CToaster
+            position={'top-right'}
+          > 
+                <CToast
+                  show={showError}
+                  autohide={true && 4000}
+                  fade={true}
+                >
+                  <CToastHeader closeButton={true}>
+                  <CBadge className="mr-1" color="danger">ECHEC</CBadge>              
+                  </CToastHeader>
+                  <CToastBody  color="success">
+                    {errorMessage}
+                  </CToastBody>
+                </CToast>
+          </CToaster>
+        </CCol>
     </div>
     
   )
